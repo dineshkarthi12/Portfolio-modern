@@ -1,0 +1,7 @@
+node_modules/
+
+# Staging dir left behind if an in-place compress run is interrupted
+public/frames.tmp-*/
+
+.DS_Store
+*.log

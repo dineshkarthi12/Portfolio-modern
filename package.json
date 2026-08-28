@@ -1,0 +1,15 @@
+{
+  "name": "portfolio-modern",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Single-page portfolio with an Apple-style scroll-driven canvas image sequence. Vanilla HTML/CSS/JS — no build step for the site itself.",
+  "type": "module",
+  "scripts": {
+    "frames": "node scripts/compress-frames.mjs",
+    "manifest": "node scripts/compress-frames.mjs --manifest-only",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.4"
+  }
+}

@@ -1,0 +1,619 @@
+/* ===========================================================================
+   Portfolio — dark theme, one accent, big type.
+   Sections:  tokens · reset · loader · nav · hero · sections · about
+              skills · projects · contact · footer · grain · reduced motion
+   ======================================================================== */
+
+/* ------------------------------------------------------------- tokens --- */
+:root {
+  /* Palette — one accent, everything else neutral. */
+  --bg:            #08080a;
+  --bg-raise:      #0e0e12;
+  --bg-card:       #101015;
+  --line:          rgba(255, 255, 255, 0.09);
+  --line-strong:   rgba(255, 255, 255, 0.18);
+  --text:          #f2f2f4;
+  --text-dim:      #9a9aa6;
+  --text-faint:    #5f5f6b;
+  --accent:        #ff5c35;
+  --accent-soft:   rgba(255, 92, 53, 0.14);
+
+  /* Type */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Rhythm */
+  --wrap:      1240px;
+  --gutter:    clamp(1.25rem, 5vw, 4rem);
+  --section-y: clamp(6rem, 14vh, 11rem);
+  --radius:    14px;
+
+  /* How many viewport heights the hero stays pinned for.
+     Read by JS to size both the pin distance and the hero spacer.
+     Overridden per-breakpoint below. */
+  --pin-vh: 400;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -------------------------------------------------------------- reset --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  /* Lenis drives scrolling; native smooth-scroll would fight it. */
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Lenis needs the document itself to size naturally. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Body scroll is locked until the sequence has preloaded. */
+body.is-loading { overflow: hidden; height: 100vh; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0 0 1.1em; }
+a { color: inherit; text-decoration: none; }
+em { font-style: normal; color: var(--accent); }
+ul { list-style: none; margin: 0; padding: 0; }
+canvas { display: block; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ------------------------------------------------------------- loader --- */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  transition: opacity 0.8s var(--ease-out), visibility 0.8s;
+}
+.loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.loader__inner {
+  width: min(420px, calc(100vw - 2 * var(--gutter)));
+  text-align: left;
+}
+
+.loader__mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.35em;
+  color: var(--text-faint);
+  margin-bottom: 2.5rem;
+}
+
+.loader__count {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(4rem, 16vw, 8rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 0.08em;
+}
+.loader__pct { font-size: 0.28em; color: var(--text-faint); letter-spacing: 0; }
+
+.loader__bar {
+  height: 2px;
+  margin-top: 1.75rem;
+  background: var(--line);
+  overflow: hidden;
+}
+.loader__bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: width 0.25s linear;
+}
+
+.loader__label {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------------------------------------------------------------- nav --- */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem var(--gutter);
+  mix-blend-mode: difference; /* stays legible over the bright sequence */
+  transition: transform 0.4s var(--ease-out), opacity 0.4s;
+}
+.nav.is-hidden { transform: translateY(-110%); opacity: 0; }
+
+.nav__brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+.nav__brand .dot { color: var(--accent); }
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.25rem);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+}
+.nav__links a { transition: color 0.25s; }
+.nav__links a:hover { color: var(--text); }
+.nav__cta { color: var(--text) !important; }
+
+@media (max-width: 640px) {
+  .nav__links a:not(.nav__cta) { display: none; }
+}
+
+/* --------------------------------------------------------------- hero --- */
+/* THE PIN.
+   .hero-track is one viewport tall plus --pin-vh viewport-heights of extra
+   room. .hero sticks to the top of the viewport for exactly that extra room,
+   so the sticky travel *is* the pin distance — no pin-spacer to keep in sync,
+   and it degrades to a working (if unscrubbed) hero with JS disabled.
+   ScrollTrigger only reads the track's progress; it does not pin anything. */
+.hero-track {
+  position: relative;
+  height: calc(100svh + (var(--pin-vh) * 1vh));
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* The cover fit is computed in JS against the canvas backing store;
+     this is only a safety net for the element box itself. */
+  object-fit: cover;
+}
+
+/* Darkens the sequence just enough for white type to hold contrast. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 10, 0.72) 0%, rgba(8, 8, 10, 0.25) 32%, rgba(8, 8, 10, 0.35) 62%, rgba(8, 8, 10, 0.92) 100%),
+    radial-gradient(120% 80% at 50% 50%, transparent 30%, rgba(8, 8, 10, 0.55) 100%);
+}
+
+.hero__copy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  padding: 0 var(--gutter);
+  max-width: var(--wrap);
+  margin-inline: auto;
+}
+
+/* All three beats stack in the same grid cell; GSAP cross-fades them. */
+.hero__beat {
+  grid-area: 1 / 1;
+  will-change: transform, opacity;
+}
+
+.hero__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+
+.hero__title {
+  font-size: clamp(3.5rem, 15vw, 12rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+.hero__big {
+  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+.hero__sub {
+  margin-top: 1.5rem;
+  max-width: 34ch;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  color: var(--text-dim);
+}
+
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.hero__cue-line {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(180deg, var(--accent), transparent);
+}
+
+/* Small "001 / 150" readout — makes the frame scrubbing legible. */
+.hero__frame-readout {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 2rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+@media (max-width: 640px) { .hero__frame-readout { display: none; } }
+
+/* ----------------------------------------------------------- sections --- */
+.section {
+  position: relative;
+  padding-block: var(--section-y);
+  border-top: 1px solid var(--line);
+}
+/* The hero has no border above the About section's own top rule. */
+.about { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-raise) 100%); }
+
+.section__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 2.5rem;
+}
+.section__label::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.section__title {
+  font-size: clamp(2rem, 5.2vw, 4.25rem);
+  max-width: 20ch;
+}
+.section__title--sm { font-size: clamp(1.75rem, 3.6vw, 3rem); margin-bottom: 3.5rem; }
+
+/* Reveal primitives — GSAP animates these to their resting state.
+   The pre-animation values live here so there is no flash of finished
+   content before ScrollTrigger takes over. */
+[data-reveal], [data-stagger] > * {
+  opacity: 0;
+  transform: translateY(28px);
+  will-change: transform, opacity;
+}
+
+/* -------------------------------------------------------------- about --- */
+.about__grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 5rem);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  .about__grid { grid-template-columns: 1.05fr 1fr; align-items: start; }
+}
+
+.about__body p { color: var(--text-dim); max-width: 56ch; }
+
+.about__facts {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+.about__facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-faint);
+}
+.about__facts span {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 3.5ch;
+  letter-spacing: -0.03em;
+}
+
+/* ------------------------------------------------------------- skills --- */
+.cards {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.card {
+  position: relative;
+  background: var(--bg-card);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  transition: background 0.4s var(--ease-out);
+}
+.card:hover { background: var(--bg-raise); }
+.card:hover .card__idx { color: var(--accent); }
+
+.card__idx {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+  transition: color 0.3s;
+}
+.card h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.75rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.card p { color: var(--text-dim); font-size: 0.9375rem; margin-bottom: 1.25rem; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tags li {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--text-faint);
+}
+
+/* ----------------------------------------------------------- projects --- */
+.projects { background: var(--bg-raise); }
+
+.projects__grid {
+  display: grid;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+
+.project {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.5s var(--ease-out), border-color 0.4s, box-shadow 0.5s var(--ease-out);
+}
+/* Hover lift */
+.project:hover {
+  transform: translateY(-10px);
+  border-color: var(--line-strong);
+  box-shadow: 0 26px 60px -24px rgba(0, 0, 0, 0.9);
+}
+.project:hover .project__media { filter: saturate(1.15) brightness(1.06); }
+.project:hover .project__link { color: var(--accent); gap: 0.75rem; }
+
+/* Generated cover art — no extra image requests. */
+.project__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  transition: filter 0.5s var(--ease-out);
+}
+.project__media span {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.9);
+  mix-blend-mode: overlay;
+}
+.project__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+  background-size: 5px 5px;
+  opacity: 0.5;
+}
+.project__media--a { background: linear-gradient(135deg, #ff5c35 0%, #7a1f0d 55%, #150806 100%); }
+.project__media--b { background: linear-gradient(135deg, #2b2b40 0%, #4b4b6e 45%, #0d0d14 100%); }
+.project__media--c { background: linear-gradient(135deg, #0f3b34 0%, #1d7a63 50%, #06110f 100%); }
+
+.project__body {
+  padding: clamp(1.35rem, 2.5vw, 1.85rem);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.project h3 { font-size: 1.15rem; line-height: 1.25; margin-bottom: 0.85rem; }
+.project p { color: var(--text-dim); font-size: 0.9375rem; }
+.project .tags { margin-bottom: 1.5rem; }
+
+.project__link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color 0.3s, gap 0.3s var(--ease-out);
+}
+
+/* ------------------------------------------------------------ contact --- */
+.contact__title {
+  font-size: clamp(2.5rem, 9vw, 7rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  margin-bottom: 1.75rem;
+}
+.contact__note { color: var(--text-dim); max-width: 42ch; margin-bottom: 3.5rem; }
+
+.contact__links { border-top: 1px solid var(--line); }
+.contact__links a {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 0.5rem 1.5rem 0;
+  border-bottom: 1px solid var(--line);
+  transition: padding-left 0.4s var(--ease-out), color 0.3s;
+}
+.contact__links a:hover { padding-left: 1.25rem; color: var(--accent); }
+.contact__links a:hover .contact__arrow { transform: translateX(6px); }
+
+.contact__kind {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.contact__value {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.4vw, 1.6rem);
+  letter-spacing: -0.02em;
+  word-break: break-word;
+}
+.contact__arrow { transition: transform 0.35s var(--ease-out); }
+
+@media (max-width: 560px) {
+  .contact__links a { grid-template-columns: 1fr auto; row-gap: 0.35rem; }
+  .contact__kind { grid-column: 1 / -1; }
+}
+
+/* ------------------------------------------------------------- footer --- */
+.footer {
+  border-top: 1px solid var(--line);
+  padding-block: 2.5rem;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer__top { transition: color 0.3s; }
+.footer__top:hover { color: var(--accent); }
+@media (max-width: 620px) { .footer__mid { order: 3; width: 100%; } }
+
+/* -------------------------------------------------------------- grain --- */
+/* Static SVG feTurbulence, tiled. Cheap: one composited layer, no repaint. */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 8s steps(6) infinite;
+}
+@keyframes grain-shift {
+  0%   { transform: translate(0, 0); }
+  16%  { transform: translate(-3%, -4%); }
+  33%  { transform: translate(2%, -2%); }
+  50%  { transform: translate(-2%, 3%); }
+  66%  { transform: translate(3%, 1%); }
+  83%  { transform: translate(-1%, -3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ----------------------------------------------------- responsive pin --- */
+/* Fewer viewport-heights of pinned scroll on smaller screens: the sequence
+   is shorter there (every 2nd frame) and long pins feel endless on touch. */
+@media (max-width: 900px) { :root { --pin-vh: 300; } }
+@media (max-width: 600px) { :root { --pin-vh: 220; } }
+
+/* ----------------------------------------------- reduced motion / a11y --- */
+@media (prefers-reduced-motion: reduce) {
+  /* No pin, no scrub, no grain drift — the hero is one still frame and the
+     page is a normal document. JS mirrors this (see main.js). */
+  :root { --pin-vh: 0; }
+
+  .grain { animation: none; }
+
+  [data-reveal], [data-stagger] > * { opacity: 1; transform: none; }
+
+  .hero__beat[data-beat='2'],
+  .hero__beat[data-beat='3'],
+  .hero__cue,
+  .hero__frame-readout { display: none; }
+
+  .project:hover { transform: none; }
+
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
